@@ -15,6 +15,7 @@ nFerritin = nFerritinPA * nAggregate; % per cube
 nProton = 1000;
 time_step = 1*10^(-6); % s
 N = 500; % echo_time2/time_step;
+nGrid = 200;
 
 % Calculated parameters
 radius_ferritin = 6*10^(-9); % m
@@ -29,9 +30,14 @@ radius_aggregate = radius_ferritin;
 % Aggregate distribution
 position_aggregate_cube = (rand(nAggregate,3)-1/2).* (length_cube-2*radius_aggregate);
 position_ferritin = position_aggregate_cube;
+cubes = zeros(3,3,3,3);
+cubes(1,:,:,1) = 1; cubes(3,:,:,1) = -1;
+cubes(:,1,:,2) = 1; cubes(:,3,:,2) = -1;
+cubes(:,:,1,3) = 1; cubes(:,:,3,3) = -1;
+
 
 scatter3(position_ferritin(:,1),position_ferritin(:,2),position_ferritin(:,3),'b.');
-axis([-length_cube/2 length_cube/2 -length_cube/2 length_cube/2 -length_cube/2 length_cube/2]);
+axis([-length_cube*3/2 length_cube*3/2 -length_cube*3/2 length_cube*3/2 -length_cube*3/2 length_cube*3/2]);
 
 % Random proton intial position
 position_proton = zeros(3,N+1);
@@ -86,3 +92,4 @@ plot3(position_proton(1,:),position_proton(2,:),position_proton(3,:),'r-')
 hold off
 
 % Calculate grid magnetic field
+% grid_magfield = grid_magnetic(nGrid, B_eq, radius_ferritin, length_cube, position_ferritin);
