@@ -24,5 +24,7 @@ for i = 1:nGrid+1
     end
 end
 
+fprintf('Grid magnetic field calculated.\n');
+
 end
 

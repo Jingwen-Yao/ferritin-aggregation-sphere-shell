@@ -6,6 +6,7 @@ diffusion = 4.24*10^(-10); % 3*10^(-9); % m^2/s
 B_eq = 0.16; % T
 volume_fraction = 3.14*10^(-6); 
 echo_time2 = 1*10^(-3); % s
+gyro = 2.675*10^8; %rad.s-1.T-1
 
 % Simulation parameters
 nAggregate = 50; % per cube
@@ -99,6 +100,10 @@ plot3(position_proton(1,:),position_proton(2,:),position_proton(3,:),'r-')
 hold off
 
 % Calculate grid magnetic field
-grid_magfield = grid_magnetic(nGrid, B_eq, radius_ferritin, length_cube, position_ferritin_cube);
+
 % grid_magfield = grid_magnetic(nGrid, B_eq, radius_ferritin, length_cube, position_ferritin);
 % grid_magfield_peripheral = grid_magfield - grid_magnetic(nGrid, B_eq, radius_ferritin, length_cube, position_ferritin_cube);
+
+% Calculate proton magnetic field
+is_near_ferritin = isNearFerritin(position_proton, position_ferritin_cube, length_cube, N, nFerritin);
+
