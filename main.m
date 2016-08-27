@@ -29,19 +29,26 @@ radius_aggregate = radius_ferritin;
 
 % Aggregate distribution
 position_aggregate_cube = (rand(nAggregate,3)-1/2).* (length_cube-2*radius_aggregate);
-position_ferritin = position_aggregate_cube;
+position_ferritin_cube = position_aggregate_cube;
 cubes = zeros(3,3,3,3);
 cubes(1,:,:,1) = 1; cubes(3,:,:,1) = -1;
 cubes(:,1,:,2) = 1; cubes(:,3,:,2) = -1;
 cubes(:,:,1,3) = 1; cubes(:,:,3,3) = -1;
+cubes = reshape(cubes,nCube,3);
+cubes = repmat(cubes,nFerritin,1);
 
+for i = 1:nFerritin
+    position_ferritin((i-1)*nCube+1:i*nCube,:) = repmat(position_ferritin_cube(i,:),nCube,1);
+end
+
+position_ferritin = position_ferritin + cubes .* length_cube;
 
 scatter3(position_ferritin(:,1),position_ferritin(:,2),position_ferritin(:,3),'b.');
 axis([-length_cube*3/2 length_cube*3/2 -length_cube*3/2 length_cube*3/2 -length_cube*3/2 length_cube*3/2]);
 
 % Random proton intial position
 position_proton = zeros(3,N+1);
-distance_ferritin = zeros(nFerritin,N+1);
+distance_ferritin = zeros(nFerritin*27,N+1);
 while distance_ferritin(:,1) < radius_ferritin % not penetrating
     position_proton(:,1) = (rand(3,1)-1/2).* length_cube;
     distance_ferritin(:,1) = sqrt((position_proton(1,1) - position_ferritin(:,1)).^2+...
@@ -92,4 +99,6 @@ plot3(position_proton(1,:),position_proton(2,:),position_proton(3,:),'r-')
 hold off
 
 % Calculate grid magnetic field
+grid_magfield = grid_magnetic(nGrid, B_eq, radius_ferritin, length_cube, position_ferritin_cube);
 % grid_magfield = grid_magnetic(nGrid, B_eq, radius_ferritin, length_cube, position_ferritin);
+% grid_magfield_peripheral = grid_magfield - grid_magnetic(nGrid, B_eq, radius_ferritin, length_cube, position_ferritin_cube);
