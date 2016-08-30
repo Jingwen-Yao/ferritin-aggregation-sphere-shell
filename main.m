@@ -9,14 +9,15 @@ echo_time2 = 1*10^(-3); % s
 gyro = 2.675*10^8; %rad.s-1.T-1
 
 % Simulation parameters
-nAggregate = 5; % per cube 50
+nAggregate = 50; % per cube 50
 nCube = 3*3*3;
 nFerritinPA = 1; % per aggregate
 nFerritin = nFerritinPA * nAggregate; % per cube
 nProton = 1000;
 time_step = 1*10^(-6); % s
-N = 50; % echo_time2/time_step; 500
-nGrid = 20; % 200
+echo_step = floor((echo_time2/2)/time_step);
+N = 1000; % echo_time2/time_step; 500
+nGrid = 100; % 200
 
 % Calculated parameters
 radius_ferritin = 6*10^(-9); % m
@@ -50,12 +51,15 @@ axis([-length_cube*3/2 length_cube*3/2 -length_cube*3/2 length_cube*3/2 -length_
 % Random proton intial position
 position_proton = zeros(3,N+1);
 distance_ferritin = zeros(nFerritin*27,N+1);
-while distance_ferritin(:,1) < radius_ferritin % not penetrating
-    position_proton(:,1) = (rand(3,1)-1/2).* length_cube;
-    distance_ferritin(:,1) = sqrt((position_proton(1,1) - position_ferritin(:,1)).^2+...
-            (position_proton(2,1) - position_ferritin(:,2)).^2+...
-            (position_proton(3,1) - position_ferritin(:,3)).^2);
-end
+
+position_proton(:,1) = [0 0 0];
+distance_ferritin(:,1) = 1;
+% while distance_ferritin(:,1) < radius_ferritin % not penetrating
+%     position_proton(:,1) = (rand(3,1)-1/2).* length_cube;
+%     distance_ferritin(:,1) = sqrt((position_proton(1,1) - position_ferritin(:,1)).^2+...
+%             (position_proton(2,1) - position_ferritin(:,2)).^2+...
+%             (position_proton(3,1) - position_ferritin(:,3)).^2);
+% end
 
 % Random Walk
 random_step = zeros(3,N);
@@ -106,4 +110,20 @@ grid_magfield_peripheral = grid_magfield - grid_magnetic(nGrid, B_eq, radius_fer
 
 % Calculate proton magnetic field
 is_near_ferritin = isNearFerritin(position_proton, position_ferritin_cube, length_cube, N, nFerritin);
+magfield = zeros(N+1,1);
+for n = 1:N+1
+    if is_near_ferritin(n) == 0
+        magfield(n,1) = trilinearField( nGrid, grid_magfield, position_proton(:,n), length_cube );
+    else
+        magfield(n,1) = trilinearField( nGrid, grid_magfield_peripheral, position_proton(:,n), length_cube ) + ...
+            localField( position_proton(:,n), B_eq, radius_ferritin, position_ferritin_cube );
+    end
+end
 
+% Calculate dephasing
+delPhi = gyro * magfield * time_step;
+phase = sum(delPhi(1:echo_step)) - sum(delPhi((echo_step+1):(2*echo_step)));
+
+% Calculate signal
+signal(1) = 1;
+signal(2) = signal(1) * cos(phase);
