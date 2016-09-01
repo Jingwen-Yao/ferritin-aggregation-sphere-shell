@@ -16,8 +16,8 @@ nFerritin = nFerritinPA * nAggregate; % per cube
 nProton = 1000;
 time_step = 1*10^(-6); % s
 echo_step = floor((echo_time2/2)/time_step);
-N = 1000; % echo_time2/time_step; 500
-nGrid = 100; % 200
+N = 5000; % echo_time2/time_step; 500
+nGrid = 200; % 200
 
 % Calculated parameters
 radius_ferritin = 6*10^(-9); % m
@@ -29,24 +29,10 @@ rmsDisplacement = sqrt(6*diffusion*time_step);
 % Aggregate parameters
 radius_aggregate = radius_ferritin;
 
-% Aggregate distribution
+% Ferritin distribution
 position_aggregate_cube = (rand(nAggregate,3)-1/2).* (length_cube-2*radius_aggregate);
 position_ferritin_cube = position_aggregate_cube;
-cubes = zeros(3,3,3,3);
-cubes(1,:,:,1) = 1; cubes(3,:,:,1) = -1;
-cubes(:,1,:,2) = 1; cubes(:,3,:,2) = -1;
-cubes(:,:,1,3) = 1; cubes(:,:,3,3) = -1;
-cubes = reshape(cubes,nCube,3);
-cubes = repmat(cubes,nFerritin,1);
-
-for i = 1:nFerritin
-    position_ferritin((i-1)*nCube+1:i*nCube,:) = repmat(position_ferritin_cube(i,:),nCube,1);
-end
-
-position_ferritin = position_ferritin + cubes .* length_cube;
-
-scatter3(position_ferritin(:,1),position_ferritin(:,2),position_ferritin(:,3),'b.');
-axis([-length_cube*3/2 length_cube*3/2 -length_cube*3/2 length_cube*3/2 -length_cube*3/2 length_cube*3/2]);
+position_ferritin = position_ferritin( nCube, nFerritin, length_cube, position_ferritin_cube );
 
 % Random proton intial position
 position_proton = zeros(3,N+1);
@@ -62,46 +48,7 @@ distance_ferritin(:,1) = 1;
 % end
 
 % Random Walk
-random_step = zeros(3,N);
-
-for n = 2:N+1
-    while distance_ferritin(:,n) < radius_ferritin % not penetrating
-        theta = rand * 2 * pi;
-        phi = rand * pi;
-        r = rmsDisplacement;
-        random_step(1,n-1) = r.*sin(theta).*cos(phi);
-        random_step(2,n-1) = r.*sin(theta).*sin(phi);
-        random_step(3,n-1) = r.*cos(theta);
-        position_proton(:,n) = position_proton(:,n-1) + random_step(:,n-1);
-        
-        % Periodic Boundary Conditions
-        if position_proton(1,n) < - length_cube / 2
-            position_proton(1,n) = position_proton(1,n) + length_cube;
-        elseif position_proton(1,n) >  length_cube / 2
-            position_proton(1,n) = position_proton(1,n) - length_cube;
-        end
-        
-        if position_proton(2,n) < - length_cube / 2
-            position_proton(2,n) = position_proton(2,n) + length_cube;
-        elseif position_proton(2,n) >  length_cube / 2
-            position_proton(2,n) = position_proton(2,n) - length_cube;
-        end
-        
-        if position_proton(3,n) < - length_cube / 2
-            position_proton(3,n) = position_proton(3,n) + length_cube;
-        elseif position_proton(3,n) >  length_cube / 2
-            position_proton(3,n) = position_proton(3,n) - length_cube;
-        end
-        
-        distance_ferritin(:,n) = sqrt((position_proton(1,n)-position_ferritin(:,1)).^2+...
-                (position_proton(2,n)-position_ferritin(:,2)).^2+...
-                (position_proton(3,n)-position_ferritin(:,3)).^2);
-    end
-end
-
-hold on
-plot3(position_proton(1,:),position_proton(2,:),position_proton(3,:),'r-')
-hold off
+position_proton = randomWalk( N, position_ferritin, position_proton, rmsDisplacement, distance_ferritin, radius_ferritin, length_cube );
 
 % Calculate grid magnetic field
 
