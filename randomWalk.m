@@ -39,9 +39,9 @@ for n = 2:N+1
     end
 end
 
-hold on
-plot3(position_proton(1,:),position_proton(2,:),position_proton(3,:),'r-')
-hold off
+% hold on
+% plot3(position_proton(1,:),position_proton(2,:),position_proton(3,:),'r-')
+% hold off
 
 end
 

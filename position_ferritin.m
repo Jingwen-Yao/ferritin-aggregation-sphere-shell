@@ -15,8 +15,8 @@ end
 
 position_ferritin = position_ferritin + cubes .* length_cube;
 
-scatter3(position_ferritin(:,1),position_ferritin(:,2),position_ferritin(:,3),'b.');
-axis([-length_cube*3/2 length_cube*3/2 -length_cube*3/2 length_cube*3/2 -length_cube*3/2 length_cube*3/2]);
+% scatter3(position_ferritin(:,1),position_ferritin(:,2),position_ferritin(:,3),'b.');
+% axis([-length_cube*3/2 length_cube*3/2 -length_cube*3/2 length_cube*3/2 -length_cube*3/2 length_cube*3/2]);
 
 end
 
