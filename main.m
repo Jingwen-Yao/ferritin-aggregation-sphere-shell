@@ -11,7 +11,7 @@ gyro = 2.675*10^8; %rad.s-1.T-1
 % Simulation parameters
 nAggregate = 50; % per cube 50
 nCube = 3*3*3;
-nFerritinPA = 50; % per aggregate
+nFerritinPA = 20; % per aggregate
 nFerritin = nFerritinPA * nAggregate; % per cube
 nProton = 1000;
 time_step = 1*10^(-6); % s
@@ -27,7 +27,7 @@ length_cube = nthroot(volume_cube,3); % m
 rmsDisplacement = sqrt(6*diffusion*time_step);
 
 % Aggregate parameters
-radius_aggregate = 10*radius_ferritin;
+radius_aggregate = 3.5*radius_ferritin;
 cubes = zeros(3,3,3,3);
 cubes(1,:,:,1) = 1; cubes(3,:,:,1) = -1;
 cubes(:,1,:,2) = 1; cubes(:,3,:,2) = -1;
@@ -38,14 +38,14 @@ position_aggregate_cube = zeros(nAggregate,3);
 position_ferritin_cube = zeros(nFerritin,3);
 position_ferritin = zeros(nFerritin*nCube,3);
 
-for a = 1:50
+for a = 1:1
     % Ferritin distribution
     position_aggregate_cube = (rand(nAggregate,3)-1/2).* (length_cube-2*radius_aggregate);
     
     % scatter3(position_aggregate_cube(:,1),position_aggregate_cube(:,2),position_aggregate_cube(:,3),'r.');
     % axis([-length_cube*3/2 length_cube*3/2 -length_cube*3/2 length_cube*3/2 -length_cube*3/2 length_cube*3/2]);
     
-    position_ferritin_cube = shellAggregate( nAggregate, position_aggregate_cube, radius_aggregate, radius_ferritin, nFerritinPA );
+    position_ferritin_cube = sphereAggregate( nAggregate, position_aggregate_cube, radius_aggregate, radius_ferritin, nFerritinPA );
     position_ferritin = positionFerritin( nCube, nFerritin, length_cube, position_ferritin_cube, cubes );
     
     % Calculate grid magnetic field
@@ -53,8 +53,8 @@ for a = 1:50
     grid_magfield_peripheral = grid_magfield - grid_magnetic(nGrid, B_eq, radius_ferritin, length_cube, position_ferritin_cube);
     
     signal_sum = zeros(1,6);
-    for p = 1:nProton/50
-        nProton/50*(a-1)+p
+    for p = 1:nProton
+        p % nProton/50*(a-1)+p
         % Random proton intial position
         position_proton = zeros(3,N+1);
         distance_ferritin = zeros(nFerritin*27,N+1);
