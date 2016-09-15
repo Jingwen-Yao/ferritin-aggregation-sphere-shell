@@ -11,7 +11,7 @@ gyro = 2.675*10^8; %rad.s-1.T-1
 % Simulation parameters
 nAggregate = 50; % per cube 50
 nCube = 3*3*3;
-nFerritinPA = 20; % per aggregate
+nFerritinPA = 1; % per aggregate
 nFerritin = nFerritinPA * nAggregate; % per cube
 nProton = 1000;
 time_step = 1*10^(-6); % s
@@ -27,7 +27,7 @@ length_cube = nthroot(volume_cube,3); % m
 rmsDisplacement = sqrt(6*diffusion*time_step);
 
 % Aggregate parameters
-radius_aggregate = 3.5*radius_ferritin;
+radius_aggregate = 1*radius_ferritin;
 cubes = zeros(3,3,3,3);
 cubes(1,:,:,1) = 1; cubes(3,:,:,1) = -1;
 cubes(:,1,:,2) = 1; cubes(:,3,:,2) = -1;
@@ -38,7 +38,7 @@ position_aggregate_cube = zeros(nAggregate,3);
 position_ferritin_cube = zeros(nFerritin,3);
 position_ferritin = zeros(nFerritin*nCube,3);
 
-for a = 1:1
+for a = 1:10
     % Ferritin distribution
     position_aggregate_cube = (rand(nAggregate,3)-1/2).* (length_cube-2*radius_aggregate);
     
@@ -54,7 +54,7 @@ for a = 1:1
     
     signal_sum = zeros(1,6);
     for p = 1:nProton
-        p % nProton/50*(a-1)+p
+        nProton*(a-1)+p
         % Random proton intial position
         position_proton = zeros(3,N+1);
         distance_ferritin = zeros(nFerritin*27,N+1);
@@ -99,7 +99,7 @@ for a = 1:1
     end
 end
 
-signal_ave = signal_sum / nProton;
+signal_ave = signal_sum / (nProton*10);
 time = [0 1 2 3 4 5]*10^(-3);
-fitting = fit(time, signal_ave, 'exp1');
-plot(fitting, time, signal_ave);
+fitting = fit(time', signal_ave', 'exp1');
+plot(fitting, time', signal_ave');
