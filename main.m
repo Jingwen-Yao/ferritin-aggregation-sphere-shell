@@ -38,7 +38,8 @@ position_aggregate_cube = zeros(nAggregate,3);
 position_ferritin_cube = zeros(nFerritin,3);
 position_ferritin = zeros(nFerritin*nCube,3);
 
-for a = 1:10
+signal_sum = zeros(5,6);
+for a = 1:5
     % Ferritin distribution
     position_aggregate_cube = (rand(nAggregate,3)-1/2).* (length_cube-2*radius_aggregate);
     
@@ -52,7 +53,6 @@ for a = 1:10
     grid_magfield = grid_magnetic(nGrid, B_eq, radius_ferritin, length_cube, position_ferritin);
     grid_magfield_peripheral = grid_magfield - grid_magnetic(nGrid, B_eq, radius_ferritin, length_cube, position_ferritin_cube);
     
-    signal_sum = zeros(1,6);
     for p = 1:nProton
         nProton*(a-1)+p
         % Random proton intial position
@@ -94,12 +94,15 @@ for a = 1:10
         
         % Calculate signal
         signal = cos(phase);
-        signal_sum = signal_sum + signal;
-        
+        signal_sum(a,:) = signal_sum(a,:) + signal;
     end
 end
 
-signal_ave = signal_sum / (nProton*10);
-time = [0 1 2 3 4 5]*10^(-3);
-fitting = fit(time', signal_ave', 'exp1');
-plot(fitting, time', signal_ave');
+signal_ave = signal_sum / (nProton);
+time = [0 1 2 3 4 5]*10^(-3); 
+for i = 1:5
+    fitting = fit(time', signal_ave(i,:)', 'exp1')
+    hold on
+    plot(fitting, time', signal_ave(i,:)');
+    hold off
+end
